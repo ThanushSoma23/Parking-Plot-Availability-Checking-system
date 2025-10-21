@@ -1,0 +1,14 @@
+# Ignore datasets
+*.csv
+*.zip
+data/
+
+# Ignore large model files
+*.h5
+*.pt
+*.pkl
+
+# Ignore Python environment and cache
+__pycache__/
+venv/
+.ipynb_checkpoints/
