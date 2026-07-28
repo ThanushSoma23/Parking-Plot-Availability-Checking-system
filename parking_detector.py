@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 import time
 import os
+import threading
 
 class ParkingDetector:
     def __init__(self, pos_file='CarParkPos', video_source='carPark.mp4', width=107, height=48):
@@ -17,7 +18,8 @@ class ParkingDetector:
         self.pos_list = []
         self.load_positions()
         
-        # Latest telemetry state
+        self.lock = threading.Lock()
+        self.current_annotated_frame = None
         self.latest_stats = {
             "total_slots": len(self.pos_list),
             "occupied_slots": 0,
@@ -26,6 +28,11 @@ class ParkingDetector:
             "slots": [],
             "timestamp": time.time()
         }
+        
+        # Start background video processing thread
+        self.running = True
+        self.thread = threading.Thread(target=self._update_loop, daemon=True)
+        self.thread.start()
 
     def load_positions(self):
         """Loads parking slot coordinates from pickle file."""
@@ -49,7 +56,7 @@ class ParkingDetector:
 
     def process_frame(self, img):
         """
-        Processes a raw BGR image frame and calculates parking slot statuses.
+        Processes a raw BGR image frame and calculates parking slot occupancy.
         Returns (annotated_image, stats_dict).
         """
         if img is None:
@@ -85,11 +92,11 @@ class ParkingDetector:
             is_available = count < self.pixel_threshold
 
             if is_available:
-                color = (0, 230, 118)  # Glowing Green (BGR)
+                color = (0, 230, 118)  # Glowing Green (BGR) for Available
                 thickness = 3
                 available_count += 1
             else:
-                color = (48, 48, 255)  # Vibrant Red (BGR)
+                color = (48, 48, 255)  # Vibrant Red (BGR) for Occupied
                 thickness = 2
                 occupied_count += 1
 
@@ -123,7 +130,7 @@ class ParkingDetector:
             cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 230, 118), 2, cv2.LINE_AA
         )
 
-        self.latest_stats = {
+        stats = {
             "total_slots": total,
             "occupied_slots": occupied_count,
             "available_slots": available_count,
@@ -132,35 +139,66 @@ class ParkingDetector:
             "timestamp": time.time()
         }
 
-        return annotated_img, self.latest_stats
+        return annotated_img, stats
+
+    def _update_loop(self):
+        """
+        Continuous background thread that reads video frames at 24 FPS,
+        processes occupancy stats, and cleanly re-opens the video on loop end.
+        """
+        cap = cv2.VideoCapture(self.video_source)
+
+        while self.running:
+            if not cap.isOpened():
+                time.sleep(0.5)
+                cap = cv2.VideoCapture(self.video_source)
+                continue
+
+            success, frame = cap.read()
+            if not success or frame is None:
+                # Video reached end or read failed -> Release and restart
+                cap.release()
+                cap = cv2.VideoCapture(self.video_source)
+                time.sleep(0.04)
+                continue
+
+            # Process frame and update shared thread state
+            annotated_frame, stats = self.process_frame(frame)
+
+            with self.lock:
+                self.current_annotated_frame = annotated_frame
+                self.latest_stats = stats
+
+            time.sleep(1.0 / 24.0)
+
+        if cap.isOpened():
+            cap.release()
+
+    def get_latest_frame(self):
+        """Thread-safe retrieval of the latest processed frame."""
+        with self.lock:
+            if self.current_annotated_frame is not None:
+                return self.current_annotated_frame.copy()
+            return None
+
+    def get_latest_stats(self):
+        """Thread-safe retrieval of the latest statistics."""
+        with self.lock:
+            return self.latest_stats
 
     def generate_frames(self):
         """
-        MJPEG stream generator that reads frames from video_source in a continuous loop.
+        MJPEG stream generator yielding latest JPEG encoded frames to connected web clients.
         """
-        cap = cv2.VideoCapture(self.video_source)
-        if not cap.isOpened():
-            print(f"Error opening video source: {self.video_source}")
-            return
-
-        fps = cap.get(cv2.CAP_PROP_FPS) or 30
-        frame_delay = 1.0 / fps
-
-        while True:
-            # Loop video when reaching end
-            if cap.get(cv2.CAP_PROP_POS_FRAMES) == cap.get(cv2.CAP_PROP_FRAME_COUNT):
-                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-
-            success, frame = cap.read()
-            if not success:
-                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        while self.running:
+            frame = self.get_latest_frame()
+            if frame is None:
+                time.sleep(0.04)
                 continue
 
-            annotated_frame, _ = self.process_frame(frame)
-
-            # Encode as JPEG
-            ret, buffer = cv2.imencode('.jpg', annotated_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+            ret, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
             if not ret:
+                time.sleep(0.04)
                 continue
 
             frame_bytes = buffer.tobytes()
@@ -168,4 +206,4 @@ class ParkingDetector:
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
-            time.sleep(frame_delay)
+            time.sleep(1.0 / 24.0)

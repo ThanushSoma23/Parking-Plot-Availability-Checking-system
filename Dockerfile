@@ -26,5 +26,5 @@ COPY . .
 # Expose server port
 EXPOSE 5000
 
-# Default launch command (Flask Web Server with Gunicorn or direct python)
-CMD ["python", "server.py"]
+# Launch multithreaded web server
+CMD ["gunicorn", "--workers", "1", "--threads", "4", "--bind", "0.0.0.0:5000", "server:app"]

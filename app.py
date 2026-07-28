@@ -4,6 +4,10 @@ import time
 import os
 from parking_detector import ParkingDetector
 
+@st.cache_resource
+def get_detector():
+    return ParkingDetector(pos_file='CarParkPos', video_source='carPark.mp4')
+
 def run_streamlit():
     # Page configuration
     st.set_page_config(
@@ -60,7 +64,7 @@ def run_streamlit():
     """, unsafe_allow_html=True)
 
     # Initialize Detector instance
-    detector = ParkingDetector(pos_file='CarParkPos', video_source='carPark.mp4')
+    detector = get_detector()
 
     # Sidebar Parameters
     st.sidebar.title("⚙️ Detection Controls")
@@ -109,26 +113,13 @@ def run_streamlit():
     # Main Display: Video Frame Stream + Slot Grid
     video_placeholder = st.empty()
 
-    # Run Video Loop
-    cap = cv2.VideoCapture('carPark.mp4')
+    # Loop and stream frames from background thread
+    while True:
+        frame = detector.get_latest_frame()
+        stats = detector.get_latest_stats()
 
-    if not cap.isOpened():
-        st.error("Error loading video file: carPark.mp4")
-    else:
-        fps = cap.get(cv2.CAP_PROP_FPS) or 30
-        delay = 1.0 / fps
-
-        while True:
-            if cap.get(cv2.CAP_PROP_POS_FRAMES) == cap.get(cv2.CAP_PROP_FRAME_COUNT):
-                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-
-            ret, frame = cap.read()
-            if not ret:
-                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                continue
-
-            annotated_frame, stats = detector.process_frame(frame)
-            rgb_frame = cv2.cvtColor(annotated_frame, cv2.COLOR_BGR2RGB)
+        if frame is not None:
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             # Update metrics
             kpi_available.markdown(f"""
@@ -162,7 +153,7 @@ def run_streamlit():
             # Display Frame
             video_placeholder.image(rgb_frame, channels="RGB", use_column_width=True)
 
-            time.sleep(0.03)
+        time.sleep(1.0 / 24.0)
 
 if __name__ == '__main__' or 'STREAMLIT_RUN' in os.environ:
     run_streamlit()

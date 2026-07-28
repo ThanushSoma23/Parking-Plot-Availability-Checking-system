@@ -18,7 +18,7 @@ def video_feed():
 
 @app.route('/api/stats')
 def get_stats():
-    return jsonify(detector.latest_stats)
+    return jsonify(detector.get_latest_stats())
 
 @app.route('/api/config', methods=['GET', 'POST'])
 def handle_config():
@@ -45,7 +45,6 @@ def handle_slots():
     if request.method == 'POST':
         data = request.json or {}
         if 'pos_list' in data and isinstance(data['pos_list'], list):
-            # Pos list formatted as [[x1, y1], [x2, y2], ...]
             formatted_pos = [tuple(p) for p in data['pos_list']]
             detector.save_positions(formatted_pos)
             detector.load_positions()
@@ -53,4 +52,4 @@ def handle_slots():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)

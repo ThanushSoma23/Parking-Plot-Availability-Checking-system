@@ -3,7 +3,7 @@ services:
     name: parkpulse-ai
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python server.py
+    startCommand: gunicorn --workers 1 --threads 4 --bind 0.0.0.0:$PORT server:app
     envVars:
       - key: PORT
         value: 5000
