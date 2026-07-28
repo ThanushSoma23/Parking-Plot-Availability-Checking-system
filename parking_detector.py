@@ -15,6 +15,7 @@ class ParkingDetector:
         self.blur_kernel = 3
         self.block_size = 25
         self.c_val = 16
+        self.playback_speed = 1.5  # Default playback speed multiplier (0.5x to 4.0x)
         self.pos_list = []
         self.load_positions()
         
@@ -143,7 +144,7 @@ class ParkingDetector:
 
     def _update_loop(self):
         """
-        Continuous background thread that reads video frames at 24 FPS,
+        Continuous background thread that reads video frames according to playback_speed,
         processes occupancy stats, and cleanly re-opens the video on loop end.
         """
         cap = cv2.VideoCapture(self.video_source)
@@ -153,6 +154,13 @@ class ParkingDetector:
                 time.sleep(0.5)
                 cap = cv2.VideoCapture(self.video_source)
                 continue
+
+            # Frame skipping for fast playback speeds
+            speed = max(0.2, float(self.playback_speed))
+            if speed > 1.2:
+                skip_count = int(speed) - 1
+                for _ in range(skip_count):
+                    cap.grab()
 
             success, frame = cap.read()
             if not success or frame is None:
@@ -169,7 +177,9 @@ class ParkingDetector:
                 self.current_annotated_frame = annotated_frame
                 self.latest_stats = stats
 
-            time.sleep(1.0 / 24.0)
+            # Calculate sleep delay based on speed
+            target_delay = max(0.005, (1.0 / (24.0 * speed)))
+            time.sleep(target_delay)
 
         if cap.isOpened():
             cap.release()
@@ -196,7 +206,7 @@ class ParkingDetector:
                 time.sleep(0.04)
                 continue
 
-            ret, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+            ret, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
             if not ret:
                 time.sleep(0.04)
                 continue
@@ -206,4 +216,6 @@ class ParkingDetector:
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
-            time.sleep(1.0 / 24.0)
+            speed = max(0.2, float(self.playback_speed))
+            target_delay = max(0.005, (1.0 / (24.0 * speed)))
+            time.sleep(target_delay)

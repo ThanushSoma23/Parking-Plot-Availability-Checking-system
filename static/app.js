@@ -11,11 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const slotsMatrix = document.getElementById('slotsMatrix');
     
     // Config Sliders
+    const playbackSpeedInput = document.getElementById('playbackSpeed');
     const pixelThresholdInput = document.getElementById('pixelThreshold');
     const blurKernelInput = document.getElementById('blurKernel');
     const blockSizeInput = document.getElementById('blockSize');
     const cValInput = document.getElementById('cVal');
 
+    const valPlaybackSpeed = document.getElementById('valPlaybackSpeed');
     const valPixelThreshold = document.getElementById('valPixelThreshold');
     const valBlurKernel = document.getElementById('valBlurKernel');
     const valBlockSize = document.getElementById('valBlockSize');
@@ -100,12 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Config Sliders Handling
     async function sendConfig() {
         const payload = {
+            playback_speed: parseFloat(playbackSpeedInput.value),
             pixel_threshold: parseInt(pixelThresholdInput.value),
             blur_kernel: parseInt(blurKernelInput.value),
             block_size: parseInt(blockSizeInput.value),
             c_val: parseInt(cValInput.value)
         };
 
+        valPlaybackSpeed.textContent = `${payload.playback_speed}x`;
         valPixelThreshold.textContent = payload.pixel_threshold;
         valBlurKernel.textContent = payload.blur_kernel;
         valBlockSize.textContent = payload.block_size;
@@ -122,12 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    [pixelThresholdInput, blurKernelInput, blockSizeInput, cValInput].forEach(slider => {
+    [playbackSpeedInput, pixelThresholdInput, blurKernelInput, blockSizeInput, cValInput].forEach(slider => {
         slider.addEventListener('input', sendConfig);
     });
 
     // 6. Reset Defaults
     btnResetConfig.addEventListener('click', () => {
+        playbackSpeedInput.value = 1.5;
         pixelThresholdInput.value = 900;
         blurKernelInput.value = 3;
         blockSizeInput.value = 25;

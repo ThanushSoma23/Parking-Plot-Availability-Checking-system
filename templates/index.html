@@ -137,6 +137,15 @@
                 <div class="config-controls">
                     <div class="control-group">
                         <div class="control-label">
+                            <label for="playbackSpeed">⚡ Playback Speed Multiplier</label>
+                            <span class="slider-val" id="valPlaybackSpeed">1.5x</span>
+                        </div>
+                        <input type="range" id="playbackSpeed" min="0.5" max="4.0" step="0.25" value="1.5">
+                        <p class="control-hint">Accelerates CCTV video playback speed</p>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
                             <label for="pixelThreshold">Pixel Occupancy Threshold</label>
                             <span class="slider-val" id="valPixelThreshold">900</span>
                         </div>

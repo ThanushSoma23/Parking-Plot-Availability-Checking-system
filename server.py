@@ -32,12 +32,15 @@ def handle_config():
             detector.block_size = int(data['block_size'])
         if 'c_val' in data:
             detector.c_val = int(data['c_val'])
+        if 'playback_speed' in data:
+            detector.playback_speed = float(data['playback_speed'])
             
     return jsonify({
         "pixel_threshold": detector.pixel_threshold,
         "blur_kernel": detector.blur_kernel,
         "block_size": detector.block_size,
-        "c_val": detector.c_val
+        "c_val": detector.c_val,
+        "playback_speed": detector.playback_speed
     })
 
 @app.route('/api/slots', methods=['GET', 'POST'])

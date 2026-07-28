@@ -70,6 +70,12 @@ def run_streamlit():
     st.sidebar.title("⚙️ Detection Controls")
     st.sidebar.markdown("Tune computer vision parameters in real-time.")
 
+    detector.playback_speed = st.sidebar.slider(
+        "⚡ Video Playback Speed",
+        min_value=0.5, max_value=4.0, value=1.5, step=0.25,
+        help="Accelerate video playback speed"
+    )
+
     detector.pixel_threshold = st.sidebar.slider(
         "Pixel Occupancy Threshold",
         min_value=200, max_value=2500, value=900, step=25,
