@@ -157,9 +157,10 @@ def run_streamlit():
             """, unsafe_allow_html=True)
 
             # Display Frame
-            video_placeholder.image(rgb_frame, channels="RGB", use_column_width=True)
+            video_placeholder.image(rgb_frame, channels="RGB", use_container_width=True)
 
         time.sleep(1.0 / 24.0)
 
 if __name__ == '__main__' or 'STREAMLIT_RUN' in os.environ:
     run_streamlit()
+

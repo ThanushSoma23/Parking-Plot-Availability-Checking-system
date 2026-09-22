@@ -1,0 +1,26 @@
+[
+  {
+    "parkingAreaId": 1,
+    "name": "City Mall Main Lot",
+    "videoSource": "carPark.mp4",
+    "posFile": "CarParkPos",
+    "pixelThreshold": 900,
+    "videoLoop": true
+  },
+  {
+    "parkingAreaId": 2,
+    "name": "North Annex Parking",
+    "videoSource": "carPark2.mp4",
+    "posFile": "CarParkPos2",
+    "pixelThreshold": 850,
+    "videoLoop": true
+  },
+  {
+    "parkingAreaId": 3,
+    "name": "East Plaza Garage",
+    "videoSource": "carPark3.mp4",
+    "posFile": "CarParkPos3",
+    "pixelThreshold": 950,
+    "videoLoop": true
+  }
+]

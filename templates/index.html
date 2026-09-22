@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ParkPulse AI — Live Parking Availability Telemetry</title>
+    <title>ParkPulse AI — Live Parking Availability & Booking System</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,9 +27,28 @@
             </div>
             <div class="logo-text">
                 <h1>ParkPulse<span class="highlight">AI</span></h1>
-                <p class="subtitle">Smart CCTV Parking Availability Platform</p>
+                <p class="subtitle">Smart CCTV Parking & Telemetry Platform</p>
             </div>
         </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs" id="mainNavTabs">
+            <button class="nav-tab active" data-tab="tab-monitor">
+                <i data-lucide="video"></i> Live Monitor
+            </button>
+            <button class="nav-tab" data-tab="tab-area-details">
+                <i data-lucide="map-pin"></i> Area Details
+            </button>
+            <button class="nav-tab" data-tab="tab-slot-selection">
+                <i data-lucide="grid"></i> Slot Selection
+            </button>
+            <button class="nav-tab" data-tab="tab-vehicle-selection">
+                <i data-lucide="car"></i> Vehicle Selection
+            </button>
+            <button class="nav-tab" data-tab="tab-booking-summary">
+                <i data-lucide="receipt"></i> Summary
+            </button>
+        </nav>
 
         <div class="header-actions">
             <div class="live-status-pill">
@@ -41,177 +60,366 @@
     </header>
 
     <main class="dashboard-container">
-        <!-- Key Performance Indicators (KPI Cards) -->
-        <section class="kpi-grid">
-            <div class="kpi-card available-card">
-                <div class="kpi-icon-wrapper">
-                    <i data-lucide="check-circle-2"></i>
-                </div>
-                <div class="kpi-content">
-                    <span class="kpi-label">Available Slots</span>
-                    <h2 class="kpi-value" id="kpiAvailable">--</h2>
-                    <span class="kpi-subtext" id="kpiAvailableSub">Free to park now</span>
-                </div>
-                <div class="kpi-glow glow-green"></div>
-            </div>
-
-            <div class="kpi-card occupied-card">
-                <div class="kpi-icon-wrapper">
-                    <i data-lucide="car"></i>
-                </div>
-                <div class="kpi-content">
-                    <span class="kpi-label">Occupied Slots</span>
-                    <h2 class="kpi-value" id="kpiOccupied">--</h2>
-                    <span class="kpi-subtext">Vehicles detected</span>
-                </div>
-                <div class="kpi-glow glow-red"></div>
-            </div>
-
-            <div class="kpi-card total-card">
-                <div class="kpi-icon-wrapper">
-                    <i data-lucide="layers"></i>
-                </div>
-                <div class="kpi-content">
-                    <span class="kpi-label">Total Capacity</span>
-                    <h2 class="kpi-value" id="kpiTotal">69</h2>
-                    <span class="kpi-subtext">Monitored spaces</span>
-                </div>
-                <div class="kpi-glow glow-blue"></div>
-            </div>
-
-            <div class="kpi-card rate-card">
-                <div class="kpi-icon-wrapper">
-                    <i data-lucide="pie-chart"></i>
-                </div>
-                <div class="kpi-content">
-                    <span class="kpi-label">Occupancy Rate</span>
-                    <h2 class="kpi-value" id="kpiRate">--%</h2>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" id="kpiProgress"></div>
+        
+        <!-- TAB 1: LIVE MONITOR & CV TELEMETRY -->
+        <div class="tab-content active" id="tab-monitor">
+            <!-- Key Performance Indicators (KPI Cards) -->
+            <section class="kpi-grid">
+                <div class="kpi-card available-card">
+                    <div class="kpi-icon-wrapper">
+                        <i data-lucide="check-circle-2"></i>
                     </div>
-                </div>
-                <div class="kpi-glow glow-purple"></div>
-            </div>
-        </section>
-
-        <!-- Main Content Area: Video Stream + Telemetry Panel -->
-        <div class="main-layout">
-            <!-- CCTV Stream Monitor -->
-            <section class="panel-card stream-panel">
-                <div class="panel-header">
-                    <div class="panel-title">
-                        <i data-lucide="video"></i>
-                        <span>CCTV Feed #1 — Main Plot</span>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Available Slots</span>
+                        <h2 class="kpi-value" id="kpiAvailable">--</h2>
+                        <span class="kpi-subtext" id="kpiAvailableSub">Free to park now</span>
                     </div>
-                    <div class="panel-tools">
-                        <button class="icon-btn" id="btnTogglePlay" title="Pause Stream">
-                            <i data-lucide="pause" id="playIcon"></i>
-                        </button>
-                        <button class="icon-btn" id="btnFullscreen" title="Fullscreen">
-                            <i data-lucide="maximize-2"></i>
-                        </button>
-                    </div>
+                    <div class="kpi-glow glow-green"></div>
                 </div>
 
-                <div class="video-container" id="videoContainer">
-                    <img src="{{ url_for('video_feed') }}" alt="Live Parking Feed" id="videoStream" class="stream-img">
-                    <div class="stream-overlay">
-                        <span class="cam-tag">CAM-01 [HQ HD]</span>
-                        <span class="fps-tag">30 FPS</span>
+                <div class="kpi-card occupied-card">
+                    <div class="kpi-icon-wrapper">
+                        <i data-lucide="car"></i>
                     </div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Occupied Slots</span>
+                        <h2 class="kpi-value" id="kpiOccupied">--</h2>
+                        <span class="kpi-subtext">Vehicles detected</span>
+                    </div>
+                    <div class="kpi-glow glow-red"></div>
+                </div>
+
+                <div class="kpi-card total-card">
+                    <div class="kpi-icon-wrapper">
+                        <i data-lucide="layers"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Total Capacity</span>
+                        <h2 class="kpi-value" id="kpiTotal">--</h2>
+                        <span class="kpi-subtext">Monitored spaces</span>
+                    </div>
+                    <div class="kpi-glow glow-blue"></div>
+                </div>
+
+                <div class="kpi-card rate-card">
+                    <div class="kpi-icon-wrapper">
+                        <i data-lucide="pie-chart"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Occupancy Rate</span>
+                        <h2 class="kpi-value" id="kpiRate">--%</h2>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="kpiProgress"></div>
+                        </div>
+                    </div>
+                    <div class="kpi-glow glow-purple"></div>
                 </div>
             </section>
 
-            <!-- Computer Vision Tuning & Telemetry Controls -->
-            <section class="panel-card config-panel">
+            <!-- Main Layout: Video Stream + Telemetry Controls -->
+            <div class="main-layout">
+                <!-- CCTV Stream Monitor -->
+                <section class="panel-card stream-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i data-lucide="video"></i>
+                            <span>CCTV Feed #1 — Main Plot</span>
+                        </div>
+                        <div class="panel-tools">
+                            <button class="icon-btn" id="btnTogglePlay" title="Pause Stream">
+                                <i data-lucide="pause" id="playIcon"></i>
+                            </button>
+                            <button class="icon-btn" id="btnFullscreen" title="Fullscreen">
+                                <i data-lucide="maximize-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="video-container" id="videoContainer">
+                        <img src="{{ url_for('video_feed') }}" alt="Live Parking Feed" id="videoStream" class="stream-img">
+                        <div class="stream-overlay">
+                            <span class="cam-tag">CAM-01 [HQ HD]</span>
+                            <span class="fps-tag">AI LIVE DETECTOR</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Computer Vision Tuning Controls -->
+                <section class="panel-card config-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i data-lucide="sliders"></i>
+                            <span>CV Processing Parameters</span>
+                        </div>
+                        <button class="icon-btn" id="btnResetConfig" title="Reset Defaults">
+                            <i data-lucide="rotate-ccw"></i>
+                        </button>
+                    </div>
+
+                    <div class="config-controls">
+                        <div class="control-group">
+                            <div class="control-label">
+                                <label for="playbackSpeed">⚡ Playback Speed Multiplier</label>
+                                <span class="slider-val" id="valPlaybackSpeed">1.5x</span>
+                            </div>
+                            <input type="range" id="playbackSpeed" min="0.5" max="4.0" step="0.25" value="1.5">
+                            <p class="control-hint">Accelerates CCTV video playback speed</p>
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <label for="pixelThreshold">Pixel Occupancy Threshold</label>
+                                <span class="slider-val" id="valPixelThreshold">900</span>
+                            </div>
+                            <input type="range" id="pixelThreshold" min="200" max="2500" step="25" value="900">
+                            <p class="control-hint">Minimum threshold for occupied slot state</p>
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <label for="blurKernel">Gaussian Blur Size</label>
+                                <span class="slider-val" id="valBlurKernel">3</span>
+                            </div>
+                            <input type="range" id="blurKernel" min="1" max="15" step="2" value="3">
+                            <p class="control-hint">Noise reduction kernel filter dimension</p>
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <label for="blockSize">Adaptive Threshold Block</label>
+                                <span class="slider-val" id="valBlockSize">25</span>
+                            </div>
+                            <input type="range" id="blockSize" min="5" max="51" step="2" value="25">
+                            <p class="control-hint">Neighborhood size for local binary thresholding</p>
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <label for="cVal">Threshold C Constant</label>
+                                <span class="slider-val" id="valCVal">16</span>
+                            </div>
+                            <input type="range" id="cVal" min="1" max="40" step="1" value="16">
+                            <p class="control-hint">Subtracted mean offset value</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- TAB 2: SCREEN 2 — PARKING AREA DETAILS -->
+        <div class="tab-content" id="tab-area-details">
+            <section class="panel-card details-hero-card">
+                <div class="area-header-info">
+                    <div class="area-badge-group">
+                        <span class="badge badge-primary" id="areaDistance">📍 280 m away</span>
+                        <span class="badge badge-accent" id="areaRate">₹50 / hour</span>
+                        <span class="badge badge-ai">🤖 AI Live Telemetry Connected</span>
+                    </div>
+                    <h1 class="area-name" id="areaName">City Mall Parking</h1>
+                    <p class="area-description">Automated CCTV multi-level parking structure equipped with real-time computer vision slot detection.</p>
+                </div>
+
+                <div class="details-stats-grid">
+                    <div class="detail-stat-box">
+                        <span class="stat-label">Total Slots</span>
+                        <h3 class="stat-value" id="detailTotal">--</h3>
+                    </div>
+                    <div class="detail-stat-box green">
+                        <span class="stat-label">Available Slots</span>
+                        <h3 class="stat-value" id="detailAvailable">--</h3>
+                    </div>
+                    <div class="detail-stat-box red">
+                        <span class="stat-label">Occupied Slots</span>
+                        <h3 class="stat-value" id="detailOccupied">--</h3>
+                    </div>
+                    <div class="detail-stat-box purple">
+                        <span class="stat-label">Occupancy Rate</span>
+                        <h3 class="stat-value" id="detailOccupancyPct">--%</h3>
+                    </div>
+                </div>
+
+                <div class="area-actions">
+                    <button class="btn btn-primary" id="btnViewAvailableSlots">
+                        <i data-lucide="grid"></i> View Available Slots
+                    </button>
+                    <button class="btn btn-secondary" id="btnGetDirections">
+                        <i data-lucide="navigation"></i> Get Directions
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- TAB 3: SCREEN 3 — SLOT SELECTION -->
+        <div class="tab-content" id="tab-slot-selection">
+            <section class="panel-card slots-selection-panel">
                 <div class="panel-header">
                     <div class="panel-title">
-                        <i data-lucide="sliders"></i>
-                        <span>CV Processing Parameters</span>
+                        <i data-lucide="layout-grid"></i>
+                        <span>Select Parking Slot</span>
                     </div>
-                    <button class="icon-btn" id="btnResetConfig" title="Reset Defaults">
-                        <i data-lucide="rotate-ccw"></i>
+                    <!-- Legend -->
+                    <div class="status-legend">
+                        <span class="legend-item"><span class="dot green"></span> 🟢 AVAILABLE</span>
+                        <span class="legend-item"><span class="dot yellow"></span> 🟡 RESERVED</span>
+                        <span class="legend-item"><span class="dot red"></span> 🔴 OCCUPIED</span>
+                    </div>
+                </div>
+
+                <div class="slots-interactive-grid" id="slotsInteractiveGrid">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+                <div class="selection-footer">
+                    <div class="selected-slot-info">
+                        <span>Selected Slot:</span>
+                        <strong id="selectedSlotLabel">None</strong>
+                    </div>
+                    <button class="btn btn-primary" id="btnSlotContinue" disabled>
+                        Continue <i data-lucide="arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- TAB 4: SCREEN 4 — VEHICLE SELECTION -->
+        <div class="tab-content" id="tab-vehicle-selection">
+            <section class="panel-card vehicle-selection-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i data-lucide="car"></i>
+                        <span>Select Vehicle</span>
+                    </div>
+                    <button class="btn btn-sm btn-outline" id="btnOpenAddVehicle">
+                        <i data-lucide="plus"></i> Add Vehicle
                     </button>
                 </div>
 
-                <div class="config-controls">
-                    <div class="control-group">
-                        <div class="control-label">
-                            <label for="playbackSpeed">⚡ Playback Speed Multiplier</label>
-                            <span class="slider-val" id="valPlaybackSpeed">1.5x</span>
-                        </div>
-                        <input type="range" id="playbackSpeed" min="0.5" max="4.0" step="0.25" value="1.5">
-                        <p class="control-hint">Accelerates CCTV video playback speed</p>
+                <div class="vehicles-list" id="vehiclesList">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+                <div class="selection-footer">
+                    <button class="btn btn-primary" id="btnVehicleContinue" disabled>
+                        Continue <i data-lucide="arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- TAB 5: SCREEN 5 — BOOKING CONFIRMATION -->
+        <div class="tab-content" id="tab-booking-summary">
+            <section class="panel-card summary-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i data-lucide="receipt"></i>
+                        <span>Booking Summary</span>
+                    </div>
+                </div>
+
+                <div class="summary-card" id="summaryCard">
+                    <div class="summary-row">
+                        <span class="sum-label">Parking Facility</span>
+                        <span class="sum-val" id="sumParkingName">City Mall Parking</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="sum-label">Selected Slot</span>
+                        <span class="sum-val highlight" id="sumSlotNumber">--</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="sum-label">Registered Vehicle</span>
+                        <span class="sum-val" id="sumVehicleNumber">--</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="sum-label">Duration</span>
+                        <span class="sum-val">1 Hour</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row total">
+                        <span class="sum-label">Parking Fee</span>
+                        <span class="sum-val fee" id="sumParkingFee">₹50</span>
                     </div>
 
-                    <div class="control-group">
-                        <div class="control-label">
-                            <label for="pixelThreshold">Pixel Occupancy Threshold</label>
-                            <span class="slider-val" id="valPixelThreshold">900</span>
-                        </div>
-                        <input type="range" id="pixelThreshold" min="200" max="2500" step="25" value="900">
-                        <p class="control-hint">Minimum threshold for occupied slot state</p>
+                    <button class="btn btn-success btn-block" id="btnConfirmBooking">
+                        <i data-lucide="check"></i> Confirm Booking
+                    </button>
+                </div>
+
+                <!-- Confirmed Ticket Display -->
+                <div class="confirmed-ticket" id="confirmedTicket" style="display: none;">
+                    <div class="ticket-header">
+                        <i data-lucide="check-circle-2" class="success-icon"></i>
+                        <h3>Booking Created Successfully!</h3>
+                        <p class="ticket-status-badge" id="ticketStatusBadge">PENDING_PAYMENT</p>
                     </div>
 
-                    <div class="control-group">
-                        <div class="control-label">
-                            <label for="blurKernel">Gaussian Blur Size</label>
-                            <span class="slider-val" id="valBlurKernel">3</span>
+                    <div class="ticket-details">
+                        <div class="ticket-col">
+                            <span class="t-label">Booking ID</span>
+                            <strong id="ticketId">#102</strong>
                         </div>
-                        <input type="range" id="blurKernel" min="1" max="15" step="2" value="3">
-                        <p class="control-hint">Noise reduction kernel filter dimension</p>
+                        <div class="ticket-col">
+                            <span class="t-label">Slot</span>
+                            <strong id="ticketSlot">--</strong>
+                        </div>
+                        <div class="ticket-col">
+                            <span class="t-label">Vehicle</span>
+                            <strong id="ticketVehicle">--</strong>
+                        </div>
+                        <div class="ticket-col">
+                            <span class="t-label">Fee Amount</span>
+                            <strong id="ticketAmount">₹50</strong>
+                        </div>
                     </div>
 
-                    <div class="control-group">
-                        <div class="control-label">
-                            <label for="blockSize">Adaptive Threshold Block</label>
-                            <span class="slider-val" id="valBlockSize">25</span>
-                        </div>
-                        <input type="range" id="blockSize" min="5" max="51" step="2" value="25">
-                        <p class="control-hint">Neighborhood size for local binary thresholding</p>
-                    </div>
-
-                    <div class="control-group">
-                        <div class="control-label">
-                            <label for="cVal">Threshold C Constant</label>
-                            <span class="slider-val" id="valCVal">16</span>
-                        </div>
-                        <input type="range" id="cVal" min="1" max="40" step="1" value="16">
-                        <p class="control-hint">Subtracted mean offset value</p>
+                    <div class="ticket-footer">
+                        <p>Present this ticket at entry gate scanner.</p>
+                        <button class="btn btn-secondary btn-sm" id="btnNewBooking">Make Another Booking</button>
                     </div>
                 </div>
             </section>
         </div>
 
-        <!-- Interactive Parking Slots Grid -->
-        <section class="panel-card slots-grid-panel">
-            <div class="panel-header">
-                <div class="panel-title">
-                    <i data-lucide="layout-grid"></i>
-                    <span>Live Slot Status Matrix</span>
-                </div>
-                <div class="grid-filter-group">
-                    <button class="filter-btn active" data-filter="all">All (69)</button>
-                    <button class="filter-btn" data-filter="available">Available</button>
-                    <button class="filter-btn" data-filter="occupied">Occupied</button>
-                </div>
-            </div>
-
-            <div class="slots-matrix" id="slotsMatrix">
-                <!-- Dynamically populated via JS -->
-            </div>
-        </section>
     </main>
+
+    <!-- Add Vehicle Modal -->
+    <div class="modal-backdrop" id="addVehicleModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Add New Vehicle</h3>
+                <button class="modal-close" id="btnCloseAddVehicle">&times;</button>
+            </div>
+            <form id="formAddVehicle">
+                <div class="form-group">
+                    <label for="vehicleNumberInput">Vehicle Registration Number</label>
+                    <input type="text" id="vehicleNumberInput" placeholder="e.g. KL05AB1234" required>
+                </div>
+                <div class="form-group">
+                    <label for="vehicleTypeInput">Vehicle Type</label>
+                    <select id="vehicleTypeInput" required>
+                        <option value="Car">Car</option>
+                        <option value="SUV">SUV</option>
+                        <option value="Bike">Bike / Two Wheeler</option>
+                        <option value="EV">Electric Vehicle</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="btnCancelAddVehicle">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Vehicle</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="app-footer">
-        <p>ParkPulse AI &copy; 2026 — Automated Parking Lot Monitoring System</p>
+        <p>ParkPulse AI &copy; 2026 — Automated CCTV Parking Lot Availability & Booking System</p>
     </footer>
 
     <!-- Custom JS Script -->
     <script src="{{ url_for('static', filename='app.js') }}"></script>
     <script>
-        lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
     </script>
 </body>
 </html>
+
